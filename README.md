@@ -1,4 +1,5 @@
 # Premier League Match Predictor
+**Live Demo:** https://premier-league-match-predictor-lbsy.onrender.com
 
 A machine learning project that predicts the probabilities of a Premier League match ending in a home win, draw, or away win.
 
@@ -37,16 +38,16 @@ After evaluation, the final model is trained on all available historical matches
 
 Match data comes from Football-Data.co.uk and covers Premier League seasons from 2021/22 through 2026/27.
 
-Historical seasons from 2021/22 through 2025/26 are used to train the model. The 2026/27 season is used to maintain the current team statistics for predictions and is excluded from the training data.
+Historical seasons from 2021/22 through 2025/26 are used to train the model. The 2026/27 season is used to maintain the current team statistics for predictions and is excluded from the training data. The current-season CSV is automatically refreshed from Football-Data.co.uk when the application starts.
 
 The dataset includes match results, goals, shots on target, and match dates.
 
 ## How to run
 
-- Install the required dependency:
+- Install the required dependencies:
 
 ```bash
-pip install scikit-learn
+pip install -r requirements.txt
 ```
 
 - Run the predictor:
@@ -77,3 +78,9 @@ Liverpool win: 65.3%
 - `PL2627.csv` — current-season data used to build current team statistics
 
 - `README.md` — project documentation
+
+- `app.py` — Flask web application for generating predictions through a browser
+
+- `templates/` — HTML templates for the web interface
+
+- `static/` — CSS styling for the web interface
