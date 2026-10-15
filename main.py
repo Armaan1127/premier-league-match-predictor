@@ -2,6 +2,9 @@ import csv
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from datetime import datetime
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 teams = {}
 trainingData = []
@@ -196,7 +199,7 @@ def processSeason(season):
     for team in teams:
         resetSeasonStats(teams[team])
 
-    with open(season) as source:
+    with open(BASE_DIR / season) as source:
         data = csv.DictReader(source)
             
         for match in data:
@@ -296,8 +299,7 @@ def predictMatch(home, away, matchDate, finalModel, finalScaler):
     awayRestDays = (matchDate - teams[away]["last_match_date"]).days
 
     if homeRestDays <= 0 or awayRestDays <= 0:
-        print("Match date must be after both teams' most recent match.")
-        return
+        return None
 
     features = calculateFeatures(home, away, matchDate)
 
@@ -307,10 +309,11 @@ def predictMatch(home, away, matchDate, finalModel, finalScaler):
 
     probabilityMap = dict(zip(finalModel.classes_, probabilities))
 
-    print(f"\n{home} vs {away}")
-    print(f"{home} win: {probabilityMap['H']:.1%}")
-    print(f"Draw: {probabilityMap['D']:.1%}")
-    print(f"{away} win: {probabilityMap['A']:.1%}")
+    return {
+        "home": probabilityMap["H"],
+        "draw": probabilityMap["D"],
+        "away": probabilityMap["A"]
+    }
 
 def main():
     for season in seasons:
@@ -347,7 +350,13 @@ def main():
         print("Invalid date. Use DD/MM/YYYY.")
         exit()
 
-    predictMatch(home, away, matchDate, finalModel, finalScaler)
+    prediction = predictMatch(home, away, matchDate, finalModel, finalScaler)
+
+    if prediction:
+        print(f"\n{home} vs {away}")
+        print(f"{home} win: {prediction['home']:.1%}")
+        print(f"Draw: {prediction['draw']:.1%}")
+        print(f"{away} win: {prediction['away']:.1%}")
 
 if __name__ == "__main__":
     main()

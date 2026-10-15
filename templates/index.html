@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Premier League Match Predictor</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Premier League Match Predictor</h1>
+
+            <p class="subtitle">Select two teams and a match date to generate a prediction.</p>
+            
+            <form method="POST">
+                <!-- HOME TEAM -->
+                <label for="homeTeam">Home Team:</label>
+                <select id="homeTeam" name="homeTeam" required>
+                    <option value="" selected disabled>Select home team</option>
+                    {% for team in teams %}
+                        <option value="{{ team }}" {% if team == selectedHome %}selected{% endif %}>
+                            {{ team }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <!-- AWAY TEAM -->
+                <label for="awayTeam">Away Team:</label>
+                <select id="awayTeam" name="awayTeam" required>
+                    <option value="" selected disabled>Select away team</option>
+                    {% for team in teams %}
+                    <option value="{{ team }}" {% if team == selectedAway %}selected{% endif %}>
+                            {{ team }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <!-- DATE -->
+                <label for="matchDate">Match Date:</label>
+                <input type="date" id="matchDate" name="matchDate" value="{{ selectedDate or '' }}" required>
+
+                <button type="submit">Predict Match</button>
+            </form>
+
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+
+            {% if prediction %}
+
+                <div class="prediction">
+                    <h2>{{ selectedHome }} vs {{ selectedAway }}</h2>
+                    <div class="results">
+                        <div class="result">
+                            <span>{{ selectedHome }}</span>
+                            <strong>{{ "%.1f"|format(prediction.home * 100) }}%</strong>
+                        </div>
+                        <div class="result">
+                            <span>Draw</span>
+                            <strong>{{ "%.1f"|format(prediction.draw * 100) }}%</strong>
+                        </div>
+                        <div class="result">
+                            <span>{{ selectedAway }}</span>
+                            <strong>{{ "%.1f"|format(prediction.away * 100) }}%</strong>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </body>
+</html>
