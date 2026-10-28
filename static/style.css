@@ -1,3 +1,7 @@
+/* =========================
+   GLOBAL
+========================= */
+
 * {
     box-sizing: border-box;
 }
@@ -5,109 +9,400 @@
 body {
     margin: 0;
     min-height: 100vh;
+    padding: 30px 20px;
     font-family: Arial, sans-serif;
     background: #f4f6f8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .container {
     width: 100%;
-    max-width: 650px;
-    background: white;
+    max-width: 1100px;
+    margin: 0 auto;
     padding: 40px;
+    background: white;
     border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
+/* =========================
+   HEADER
+========================= */
+
 h1 {
-    margin-top: 0;
+    margin: 0;
     text-align: center;
+    font-size: 2rem;
+    color: #37003c;
 }
 
 .subtitle {
+    margin: 16px 0 35px;
     text-align: center;
     color: #666;
-    margin-bottom: 32px;
+    line-height: 1.5;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-label {
-    font-weight: 600;
-    margin-top: 8px;
-}
-
-select,
-input[type="date"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-    background: white;
-}
-
-button {
-    margin-top: 16px;
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    background: #37003c;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-button:hover {
-    background: #52005a;
-}
+/* =========================
+   PREDICTIONS
+========================= */
 
 .prediction {
-    margin-top: 32px;
+    margin: 35px 0 45px;
+    scroll-margin-top: 25px;
 }
 
 .prediction h2 {
+    margin-bottom: 25px;
     text-align: center;
-    margin-bottom: 20px;
+    font-size: 1.6rem;
+    color: #37003c;
 }
 
 .results {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
 }
 
 .result {
-    padding: 20px 10px;
+    min-width: 0;
+    padding: 24px 18px;
     background: #f4f6f8;
-    border-radius: 10px;
+    border-radius: 12px;
     text-align: center;
 }
 
 .result span {
     display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: 12px;
+    font-size: 1rem;
     color: #666;
+    overflow-wrap: break-word;
 }
 
 .result strong {
-    font-size: 24px;
+    display: block;
+    font-size: 2rem;
+    color: #111;
 }
+
+.probability-track {
+    width: 100%;
+    height: 10px;
+    margin-top: 20px;
+    background: #dce2ea;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.probability-fill {
+    height: 100%;
+    background: #37003c;
+    border-radius: 10px;
+}
+
+/* =========================
+   MATCHDAYS
+========================= */
+
+.matchday {
+    margin-top: 30px;
+}
+
+.matchday h2 {
+    margin-bottom: 18px;
+    font-size: 1.5rem;
+    color: #37003c;
+}
+
+.fixtures {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* =========================
+   FIXTURE CARDS
+========================= */
+
+.fixture-form {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.fixture-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 22px;
+
+    width: 100%;
+    min-height: 68px;
+    margin: 0;
+    padding: 14px 20px;
+
+    background: #37003c;
+    color: white;
+
+    border: 1px solid #52005a;
+    border-radius: 10px;
+
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: left;
+
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.fixture-card:hover {
+    background: #52005a;
+}
+
+.fixture-card.selected {
+    background: #52005a;
+    border: 2px solid white;
+}
+
+.fixture-card:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 3px;
+}
+
+/* =========================
+   TEAMS
+========================= */
+
+.fixture-teams {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+}
+
+.fixture-team {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.fixture-team:first-child {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    text-align: right;
+}
+
+.fixture-team:last-child {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.fixture-team span {
+    overflow-wrap: break-word;
+}
+
+.team-crest {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.vs {
+    color: #c5a6c8;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* =========================
+   DATE AND ACTION
+========================= */
+
+.fixture-date {
+    color: #d6bfd9;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.fixture-action {
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: right;
+}
+
+/* =========================
+   ERRORS
+========================= */
 
 .error {
     margin-top: 20px;
-    padding: 12px;
+    padding: 14px;
     background: #f8d7da;
     border-radius: 8px;
     text-align: center;
     color: #842029;
+}
+
+/* =========================
+   TABLETS
+========================= */
+
+@media (max-width: 900px) {
+    .container {
+        padding: 30px 24px;
+    }
+
+    .fixture-card {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 10px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .fixture-teams {
+        width: 100%;
+        max-width: 550px;
+    }
+
+    .fixture-date {
+        white-space: normal;
+    }
+
+    .fixture-action {
+        text-align: center;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        padding: 24px 16px;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+    }
+
+    .prediction h2 {
+        font-size: 1.3rem;
+    }
+
+    .results {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .result {
+        padding: 18px;
+    }
+
+    .result strong {
+        font-size: 1.7rem;
+    }
+
+    .matchday h2 {
+        font-size: 1.3rem;
+    }
+
+    .fixture-card {
+        padding: 14px 12px;
+    }
+
+    .fixture-teams {
+        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .fixture-team {
+        gap: 6px;
+        font-size: 0.85rem;
+    }
+
+    .team-crest {
+        width: 25px;
+        height: 25px;
+    }
+
+    .fixture-date {
+        font-size: 0.85rem;
+    }
+
+    .fixture-action {
+        font-size: 0.9rem;
+    }
+}
+
+/* =========================
+   PAGE HEADER
+========================= */
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.season-label {
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 7px 14px;
+
+    background: #f3e8f5;
+    color: #37003c;
+
+    border-radius: 20px;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #37003c;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.page-header .subtitle {
+    margin: 16px 0 0;
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        font-size: 1.7rem;
+    }
+
+    .page-header .subtitle {
+        font-size: 0.9rem;
+    }
 }

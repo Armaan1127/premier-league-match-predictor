@@ -1,73 +1,130 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Premier League Match Predictor</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier League Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-    <body>
-        <div class="container">
-            <h1>Premier League Match Predictor</h1>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <span class="season-label">2026/27 SEASON</span>
 
-            <p class="subtitle">Select two teams and a match date to generate a prediction.</p>
-            
-            <form method="POST">
-                <!-- HOME TEAM -->
-                <label for="homeTeam">Home Team:</label>
-                <select id="homeTeam" name="homeTeam" required>
-                    <option value="" selected disabled>Select home team</option>
-                    {% for team in teams %}
-                        <option value="{{ team }}" {% if team == selectedHome %}selected{% endif %}>
-                            {{ team }}
-                        </option>
-                    {% endfor %}
-                </select>
+            <h1>Premier League Predictor</h1>
 
-                <!-- AWAY TEAM -->
-                <label for="awayTeam">Away Team:</label>
-                <select id="awayTeam" name="awayTeam" required>
-                    <option value="" selected disabled>Select away team</option>
-                    {% for team in teams %}
-                    <option value="{{ team }}" {% if team == selectedAway %}selected{% endif %}>
-                            {{ team }}
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <!-- DATE -->
-                <label for="matchDate">Match Date:</label>
-                <input type="date" id="matchDate" name="matchDate" value="{{ selectedDate or '' }}" required>
-
-                <button type="submit">Predict Match</button>
-            </form>
-
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
-
-            {% if prediction %}
-
-                <div class="prediction">
-                    <h2>{{ selectedHome }} vs {{ selectedAway }}</h2>
-                    <div class="results">
-                        <div class="result">
-                            <span>{{ selectedHome }}</span>
-                            <strong>{{ "%.1f"|format(prediction.home * 100) }}%</strong>
-                        </div>
-                        <div class="result">
-                            <span>Draw</span>
-                            <strong>{{ "%.1f"|format(prediction.draw * 100) }}%</strong>
-                        </div>
-                        <div class="result">
-                            <span>{{ selectedAway }}</span>
-                            <strong>{{ "%.1f"|format(prediction.away * 100) }}%</strong>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+            <p class="subtitle">
+                Machine learning-powered predictions for upcoming Premier League fixtures.
+            </p>
         </div>
-    </body>
+
+        {% if fixtureError %}
+            <p class="error">{{ fixtureError }}</p>
+        {% endif %}
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if prediction and selectedFixture %}
+            <div class="prediction" id="prediction">
+                <h2>
+                    {{ selectedFixture.homeTeam }} vs {{ selectedFixture.awayTeam }}
+                </h2>
+
+                <div class="results">
+                    {% for label, probability in [
+                        (selectedFixture.homeTeam, prediction.home),
+                        ('Draw', prediction.draw),
+                        (selectedFixture.awayTeam, prediction.away)
+                    ] %}
+                        <div class="result">
+                            <span>{{ label }}</span>
+                            <strong>{{ "%.1f"|format(probability * 100) }}%</strong>
+
+                            <div class="probability-track">
+                                <div
+                                    class="probability-fill"
+                                    style="width: {{ probability * 100 }}%"
+                                ></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if fixtures %}
+            {% for matchday in fixtures | map(attribute='matchday') | unique | list %}
+
+                <section class="matchday">
+                    <h2>Matchday {{ matchday }}</h2>
+
+                    <div class="fixtures">
+                        {% for fixture in fixtures if fixture.matchday == matchday %}
+
+                            <form method="POST" class="fixture-form">
+                                <input
+                                    type="hidden"
+                                    name="fixtureId"
+                                    value="{{ fixture.id }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="fixture-card {% if selectedFixture and selectedFixture.id == fixture.id %}selected{% endif %}"
+                                >
+                                    <div class="fixture-teams">
+                                        <div class="fixture-team">
+                                            {% if fixture.homeCrest %}
+                                                <img src="{{ fixture.homeCrest }}" class="team-crest" alt="">
+                                            {% endif %}
+                                            <span>{{ fixture.homeTeam }}</span>
+                                        </div>
+
+                                        <span class="vs">vs</span>
+
+                                        <div class="fixture-team">
+                                            {% if fixture.awayCrest %}
+                                                <img src="{{ fixture.awayCrest }}" class="team-crest" alt="">
+                                            {% endif %}
+                                            <span>{{ fixture.awayTeam }}</span>
+                                        </div>
+                                    </div>
+
+                                    <span class="fixture-date">
+                                        {{ fixture.localDate.strftime('%b %d, %Y · %I:%M %p') }} ET
+                                    </span>
+
+                                    <span class="fixture-action">
+                                        Predict →
+                                    </span>
+                                </button>
+                            </form>
+
+                        {% endfor %}
+                    </div>
+                </section>
+
+            {% endfor %}
+        {% endif %}
+
+    </div>
+    {% if prediction and selectedFixture %}
+    <script>
+        window.addEventListener("load", function () {
+            const prediction = document.getElementById("prediction");
+
+            if (prediction) {
+                prediction.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+        });
+    </script>
+    {% endif %}
+</body>
 </html>

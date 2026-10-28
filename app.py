@@ -3,6 +3,7 @@ from main import processSeason, prepareData, trainFinalModel, predictMatch, seas
 from datetime import datetime
 from urllib.request import urlopen
 from pathlib import Path
+from fixtures import getUpcomingFixtures
 
 def updateMatchData():
     url = "https://www.football-data.co.uk/mmz4281/2627/E0.csv"
@@ -33,53 +34,52 @@ finalModel, finalScaler = trainFinalModel(X, Y)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    teamList = sorted([
-        team for team in teams
-        if teams[team]["games"] > 0
-    ])
+    fixtures = []
+    fixtureError = None
+    prediction = None
+    selectedFixture = None
+    error = None
+
+    try:
+        fixtures = getUpcomingFixtures()
+    except Exception as exception:
+        print(f"Fixture API error: {exception}")
+        fixtureError = "Upcoming fixtures are temporarily unavailable."
 
     if request.method == "POST":
-        homeTeam = request.form["homeTeam"]
-        awayTeam = request.form["awayTeam"]
-        dateInput = request.form["matchDate"]
+        fixtureId = request.form.get("fixtureId")
 
-        if homeTeam == awayTeam:
-            return render_template(
-                "index.html",
-                teams=teamList,
-                error="Home and away teams must be different",
-                selectedHome=homeTeam,
-                selectedAway=awayTeam,
-                selectedDate=dateInput
-            )
-
-        matchDate = datetime.strptime(dateInput, "%Y-%m-%d")
-
-        prediction = predictMatch(
-            homeTeam,
-            awayTeam,
-            matchDate,
-            finalModel,
-            finalScaler
+        selectedFixture = next(
+            (
+                fixture for fixture in fixtures
+                if str(fixture["id"]) == fixtureId
+            ),
+            None
         )
 
-        if prediction is None:
-            return render_template(
-                "index.html",
-                teams=teamList,
-                error="Match date must be after both teams' most recent match.",
-                selectedHome=homeTeam,
-                selectedAway=awayTeam,
-                selectedDate=dateInput
+        if selectedFixture is None:
+            error = "Please select a valid upcoming fixture."
+        else:
+            matchDate = selectedFixture["date"].replace(tzinfo=None)
+
+            prediction = predictMatch(
+                selectedFixture["homeTeam"],
+                selectedFixture["awayTeam"],
+                matchDate,
+                finalModel,
+                finalScaler
             )
-    
+
+            if prediction is None:
+                error = "Unable to predict this match with the available data."
+
     return render_template(
-        "index.html", 
-        teams=teamList,
-        prediction=prediction if request.method == "POST" else None,
-        selectedHome=homeTeam if request.method == "POST" else None,
-        selectedAway=awayTeam if request.method == "POST" else None,
-        selectedDate=dateInput if request.method == "POST" else None
+        "index.html",
+        fixtures=fixtures,
+        prediction=prediction,
+        selectedFixture=selectedFixture,
+        fixtureError=fixtureError,
+        error=error
     )
 
 if __name__ == "__main__":

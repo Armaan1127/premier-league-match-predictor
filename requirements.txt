@@ -1,3 +1,5 @@
 scikit-learn
 Flask
 gunicorn
+requests
+python-dotenv
