@@ -2,7 +2,6 @@ import os
 import requests
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from functools import lru_cache
 from zoneinfo import ZoneInfo
 
 load_dotenv()
@@ -34,7 +33,6 @@ TEAM_NAMES = {
 }
 
 
-@lru_cache(maxsize=1)
 def fetchFixtures():
     apiKey = os.getenv("FOOTBALL_API_KEY")
 
@@ -97,17 +95,47 @@ from time import monotonic
 
 _cached_fixtures = None
 _cache_time = 0
+CACHE_DURATION = 1800  # 30 minutes
+
 
 def getUpcomingFixtures():
     global _cached_fixtures, _cache_time
 
     now = monotonic()
 
-    if _cached_fixtures is None or now - _cache_time >= 1800:
-        _cached_fixtures = fetchFixtures()
-        _cache_time = now
+    if _cached_fixtures is None or now - _cache_time >= CACHE_DURATION:
+        try:
+            _cached_fixtures = fetchFixtures()
+            _cache_time = now
+        except Exception as error:
+            print(f"Fixture refresh failed: {error}")
 
-    return _cached_fixtures
+            if _cached_fixtures is None:
+                raise
+
+    # Remove matches that have already started.
+    current_time = datetime.now(timezone.utc)
+
+    upcoming = [
+        fixture for fixture in _cached_fixtures
+        if fixture["date"] > current_time
+    ]
+
+    # Display only the next two matchdays.
+    matchdays = []
+
+    for fixture in upcoming:
+        if fixture["matchday"] not in matchdays:
+            matchdays.append(fixture["matchday"])
+
+        if len(matchdays) == 2:
+            break
+
+    return [
+        fixture for fixture in upcoming
+        if fixture["matchday"] in matchdays
+    ]
+
 
 if __name__ == "__main__":
     for fixture in getUpcomingFixtures():

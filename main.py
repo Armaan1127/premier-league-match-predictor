@@ -315,6 +315,24 @@ def predictMatch(home, away, matchDate, finalModel, finalScaler):
         "away": probabilityMap["A"]
     }
 
+def refreshCurrentSeason():
+    global teams
+
+    # Rebuild all team statistics from scratch.
+    teams.clear()
+
+    # Historical seasons establish the correct Elo ratings.
+    # Do not add duplicate training rows.
+    originalTrainingData = trainingData.copy()
+    trainingData.clear()
+
+    try:
+        for season in seasons:
+            processSeason(season)
+    finally:
+        trainingData.clear()
+        trainingData.extend(originalTrainingData)
+
 def main():
     for season in seasons:
         processSeason(season)
